@@ -4,13 +4,18 @@ const express = require('express');
 const {ApiError} = require("./lib/classes");
 const controller = require('./lib/controller');
 
+const app = express();
+const serverUrl = 'http://localhost';
+const serverPort = 3000;
+
+global.getServerUrl = function() {
+	return serverUrl + (serverPort === 80 ? '' : ':' + serverPort);
+};
+
 global.profileService = require('./lib/profileService');
 profileService.load();
 
-const app = express();
-const port = 3000;
-
-app.use(express.json());
+app.use(express.json()); // Парсер JSON Body
 
 app.get('/', function(request, response) {
 	response.contentType('text');
@@ -21,6 +26,8 @@ app.post('/minecraft/join', controller.join);
 app.get('/minecraft/hasJoined', controller.hasJoined);
 app.get('/minecraft/profile/:uuid', controller.profile);
 app.post('/minecraft/getProfiles', controller.getProfiles);
+
+app.use('/textures', express.static('./storage/textures'));
 app.use('/favicon.ico', express.static('favicon.ico'));
 
 // Middleware
@@ -32,6 +39,6 @@ app.use((error, request, response, next) => {
 	}
 });
 
-app.listen(port, function() {
-	console.log(`Server running at http://localhost:${port}`)
+app.listen(serverPort, function() {
+	console.log(`Server running at ${getServerUrl()}`)
 });
