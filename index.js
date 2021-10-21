@@ -22,10 +22,10 @@ app.get('/', function(request, response) {
 	response.send('Server working!')
 });
 
-app.post('/minecraft/join', controller.join);
-app.get('/minecraft/hasJoined', controller.hasJoined);
-app.get('/minecraft/profile/:uuid', controller.profile);
-app.post('/minecraft/getProfiles', controller.getProfiles);
+app.post('/minecraft/join', (req, res) => controller.join(req, res));
+app.get('/minecraft/hasJoined', (req, res) => controller.hasJoined(req, res));
+app.get('/minecraft/profile/:uuid', (req, res) => controller.profile(req, res));
+app.post('/minecraft/getProfiles', (req, res) => controller.getProfiles(req, res));
 
 app.use('/textures', express.static('./storage/textures'));
 app.use('/favicon.ico', express.static('favicon.ico'));
@@ -33,7 +33,7 @@ app.use('/favicon.ico', express.static('favicon.ico'));
 // Middleware
 app.use((error, request, response, next) => {
 	if (error instanceof ApiError) {
-		response.json({error: 'InvalidRequestException', errorMessage: error.message});
+		response.json({error: error.type, errorMessage: error.message});
 	} else {
 		next(error);
 	}
